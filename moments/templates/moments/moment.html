@@ -1,0 +1,28 @@
+{% load static from staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Moments</title>
+    <link rel="stylesheet" href="{% static 'css/moment.css' %}">
+    <script src="{% static 'js/azure-storage.blob.min.js' %}"></script>
+    <script src="{% static 'js/moment.js' %}"></script>
+    <script>
+    </script>
+</head>
+<body>
+<h1>Moments</h1>
+<h2>
+    <div class="info">
+        <ul>
+            <li>{{ model.momentID }}</li>
+            <li>{{ model.name }}</li>
+            <li>{{ model.modelMethodExample }}</li>
+        </ul>
+    </div>
+    <input type="file" id="files" name="file">
+    <button id="upload-button" class="btn btn-xs btn-primary" onclick="uploadBlobByStream(false)">UploadBlob</button>
+</h2>
+</body>
+</html>

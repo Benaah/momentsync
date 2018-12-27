@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{% load static from staticfiles %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Moment Sync</title>
+    <link href="{% static 'css/normalize.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/skeleton.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/home.css' %}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="133754882345-b044u4p8radcpasmq9s38sc3k0hiktsb.apps.googleusercontent.com">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+
+    <script src="{% static 'js/home.js' %}"></script>
+</head>
+<body>
+<div class="card">
+  <div class="container">
+      <h3 id="main-title"><i>Moment Sync</i></h3>
+      <p>Sync Your Moments</p>
+      <p><b>Fast, Secure, & Simple</b></p>
+      <div class="g-signin2" data-onsuccess="onSignIn" style=""></div>
+      <a href="#" onclick="signOut();">Sign out</a>
+  </div>
+</div>
+</body>
+</html>
