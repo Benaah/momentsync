@@ -1,3 +1,15 @@
+// function checkIfLoggedIn() {
+//   if(sessionStorage.getItem('username') == null){
+//     window.location.href='';
+//   } else {
+//     //User already logged in
+//     var userEntity = {};
+//     userEntity = JSON.parse(sessionStorage.getItem('myUserEntity'));
+//     ...
+//     DoWhatever();
+//   }
+// }
+
 function getBlobService() {
     blobUri = 'https://' + 'myhz.blob.core.windows.net';
     // blobUri = 'https://' + 'storage.markyhzhang.com';
@@ -5,7 +17,6 @@ function getBlobService() {
 
     return blobService;
 }
-
 
 function uploadBlobByStream(checkMD5) {
     var files = document.getElementById('files').files;
@@ -46,3 +57,30 @@ function uploadBlobByStream(checkMD5) {
         }
     });
 }
+
+
+let wsStart = 'ws://';
+let loc = window.location;
+if (loc.protocol === "https:"){
+    wsStart = 'wss://';
+}
+
+//let is scoped for the closes enclosing block, var is for the nearest function block
+
+let endpoint =wsStart+loc.host+loc.pathname;
+let socket = new ReconnectingWebSocket(endpoint);
+let username = sessionStorage.getItem('username');
+
+socket.onmessage = function(e){
+    console.log(e);
+};
+socket.onopen = function(e){
+    socket.send(username);
+    console.log(e);
+};
+socket.onerror = function(e){
+    console.log(e);
+};
+socket.onclose = function(e){
+    console.log(e);
+};

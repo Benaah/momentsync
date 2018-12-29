@@ -26,7 +26,9 @@ urlpatterns = [
     path('moments/', include('moments.urls')),
     url(r'^about/$', views.about),
     url(r'^$', views.home),
-    url(r'^registration/.*', views.registration, name='registration')
+    url(r'^registration/.*', views.registration, name='registration'),
+
+    url(r'^auth/', include('social_django.urls', namespace='social')),  # <- Here
 ]
 
 urlpatterns += staticfiles_urlpatterns()

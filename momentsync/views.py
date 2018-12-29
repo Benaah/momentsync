@@ -4,6 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 from moments.models import User
 from moments.models import Moment
 
+
+
 from google.oauth2 import id_token
 from google.auth.transport import requests
 # import hashlib
@@ -20,7 +22,6 @@ def about(request):
 def registration(request):
     print(request)
     if request.POST:
-        print("yes")
         username = request.POST.get("username", "")
         token = request.POST.get("googleToken","")
 
@@ -32,7 +33,7 @@ def registration(request):
             email = idinfo['email']
             User.objects.create(googleID=userid,username=username,name=name,email=email)
 
-            Moment.objects.create(momentID=username,name=name+"'s Moments",imgIDs=[],googleID=userid)
+            Moment.objects.create(momentID=username,name=name+"'s Moments",imgIDs=[],username=username)
             return HttpResponse("valid")
         else:
             return HttpResponse("invalid")

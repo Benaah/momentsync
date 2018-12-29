@@ -25,11 +25,12 @@ function onSignIn(googleUser) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/');
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    //response format is login,username
     xhr.onload = function() {
-      console.log('Signed in as: ' + xhr.responseText);
       if (xhr.responseText.startsWith("login")){
-          console.log("LOGGEDIN");
-          window.location.replace("/moments/"+xhr.responseText.split(",")[1]);
+          var username = xhr.responseText.split(",")[1];
+          sessionStorage.setItem("username", username);
+          window.location.replace("/moments/"+username);
       }else if(xhr.responseText==="registration"){
           console.log("REGISRATING");
           window.location.href = "/registration?token="+id_token;
@@ -41,6 +42,7 @@ function onSignIn(googleUser) {
 }
 
 function signOut() {
+    sessionStorage.clear();
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
       // console.log('User signed out.');

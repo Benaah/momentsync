@@ -6,5 +6,5 @@ from .import views
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-    url(r'^', views.moment),
+    url(r'^(?P<momentID>[\w-]+)/$', views.moment),
 ]

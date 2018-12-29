@@ -16,7 +16,7 @@ function onRegister(){
     postRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     postRequest.onload = function() {
       if (postRequest.responseText==="valid"){
-          console.log("Valid username");
+          sessionStorage.setItem("username", username);
           window.location.replace("/moments/"+username);
       }else if(postRequest.responseText==="invalid"){
           console.log("Username Taken");

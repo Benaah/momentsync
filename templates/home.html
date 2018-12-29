@@ -19,7 +19,8 @@
       <h3 id="main-title"><i>Moment Sync</i></h3>
       <p>Sync Your Moments</p>
       <p><b>Fast, Secure, & Simple</b></p>
-      <div class="g-signin2" data-onsuccess="onSignIn" style=""></div>
+{#      <div class="g-signin2" data-onsuccess="onSignIn" style=""></div>#}
+      <a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a><br>
       <a href="#" id="signout" onclick="signOut();">Sign out</a>
   </div>
 </div>
