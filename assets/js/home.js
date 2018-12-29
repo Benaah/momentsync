@@ -17,7 +17,7 @@ function onSignIn(googleUser) {
     let GoogleAuth = gapi.auth2.getAuthInstance();
 
     // The ID token you need to pass to your backend:
-    var id_token = googleUser.getAuthResponse().id_token;
+    let id_token = googleUser.getAuthResponse().id_token;
     GoogleAuth.isSignedIn.listen(updateSigninStatus);
     isAuthorized = true;
     console.log("ID Token: " + id_token);
@@ -26,9 +26,18 @@ function onSignIn(googleUser) {
     xhr.open('POST', '/');
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onload = function() {
-      // console.log('Signed in as: ' + xhr.responseText);
+      console.log('Signed in as: ' + xhr.responseText);
+      if (xhr.responseText.startsWith("login")){
+          console.log("LOGGEDIN");
+          window.location.replace("/moments/"+xhr.responseText.split(",")[1]);
+      }else if(xhr.responseText==="registration"){
+          console.log("REGISRATING");
+          window.location.href = "/registration?token="+id_token;
+      }
     };
     xhr.send('idtoken=' + id_token);
+
+    // Simulate an HTTP redirect:
 }
 
 function signOut() {

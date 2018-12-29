@@ -1,11 +1,15 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 
 from .models import Moment
+from .models import User
+
+from momentsync import apps
 
 def moment(request):
 
     momentID = request.get_raw_uri().split("/moments/")[1]
     print(momentID)
 
-    return render(request, 'moments/moment.html', {"model": (Moment.objects.get(momentID=momentID))})
+    moment = Moment.objects.get(momentID=momentID)
+
+    return render(request, 'moments/moment.html', {"moment": moment, "user": (User.objects.get(googleID=moment.googleID))})

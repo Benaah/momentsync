@@ -37,7 +37,7 @@ function uploadBlobByStream(checkMD5) {
         btn.disabled = false;
         btn.innerHTML = 'UploadBlob';
         if (error) {
-            alert('Upload failed, open browser console for more detailed info.');
+            alert('Upload failed');
             console.log(error);
         } else {
             setTimeout(function() { // Prevent alert from stopping UI progress update

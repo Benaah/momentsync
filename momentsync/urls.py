@@ -26,6 +26,7 @@ urlpatterns = [
     path('moments/', include('moments.urls')),
     url(r'^about/$', views.about),
     url(r'^$', views.home),
+    url(r'^registration/.*', views.registration, name='registration')
 ]
 
 urlpatterns += staticfiles_urlpatterns()
