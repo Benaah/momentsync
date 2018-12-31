@@ -13,6 +13,7 @@ application = ProtocolTypeRouter({
             URLRouter(
                 [
                     url(r'^moments/(?P<momentID>[\w-]+)/$', ImageUpdateConsumer),
+
                 ]
             )
         )

@@ -40,7 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'moments',
-    'social_django',
+
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.facebook',
     # 'moments.apps.MomentsConfig',
 ]
 
@@ -56,6 +61,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'momentsync.urls'
 
+# TEMPLATE_DIRS = (os.path.join(PROJECT_DIR, 'templates'),)
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -68,8 +75,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -116,16 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.open_id.OpenIdAuth',  # for Google authentication
-    'social_core.backends.google.GoogleOpenId',  # for Google authentication
-    'social_core.backends.google.GoogleOAuth2',  # for Google authentication
-    'social_core.backends.github.GithubOAuth2',  # for Github authentication
-    'social_core.backends.facebook.FacebookOAuth2',  # for Facebook authentication
-
-    'django.contrib.auth.backends.ModelBackend',
-)
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -161,11 +156,25 @@ CHANNEL_LAYERS = {
 
 ASGI_APPLICATION = 'momentsync.routing.application'
 
-LOGIN_URL = '/'
-#     {% if request.GET.next %}?next={{request.GET.next}}{% endif %}">
-# use the above method in template files to have custom redirect
-LOGIN_REDIRECT_URL = '/moments/'
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config.GOOGLE_CLIENT_ID
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config.GOOGLE_CLIENT_SECRET
-
+# SITE_ID = 1
+#
+# # LOGIN_REDIRECT_URL = '/'
+# SOCIALACCOUNT_QUERY_EMAIL = True
+# SOCIALACCOUNT_PROVIDERS = {
+#     'facebook': {
+#         'SCOPE': ['email'],
+#         'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+#         'METHOD': 'oauth2',
+#         'VERIFIED_EMAIL': False
+#     },
+#
+#     'google': {
+#         'SCOPE': [
+#             'profile',
+#             'email',
+#         ],
+#         'AUTH_PARAMS': {
+#             'access_type': 'online',
+#         }
+#     },
+# }

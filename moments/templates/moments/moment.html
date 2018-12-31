@@ -19,12 +19,14 @@
         <ul>
             <li>Moment ID: {{ moment.momentID }}</li>
             <li>Moment Name: {{ moment.name }}</li>
-            <li>User's Name: {{ user.name }}</li>
+            <li>User's Name: {{ user.first_name }}</li>
             <li>Email: {{ user.email }}</li>
-            <li>GoogleID: {{ user.googleID }}</li>
+            <li>GoogleID: {{ user.profile.googleID }}</li>
             <li>Username: {{ user.username }}</li>
         </ul>
     </div>
+
+    <ul id="images"></ul>
     <input type="file" id="files" name="file">
     <button id="upload-button" class="btn btn-xs btn-primary" onclick="uploadBlobByStream(false)">UploadBlob</button>
 </h2>

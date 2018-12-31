@@ -28,7 +28,6 @@ urlpatterns = [
     url(r'^$', views.home),
     url(r'^registration/.*', views.registration, name='registration'),
 
-    url(r'^auth/', include('social_django.urls', namespace='social')),  # <- Here
+    # url(r'^accounts/', include('allauth.urls')),
 ]
-
 urlpatterns += staticfiles_urlpatterns()

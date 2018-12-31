@@ -51,13 +51,17 @@ function uploadBlobByStream(checkMD5) {
             alert('Upload failed');
             console.log(error);
         } else {
-            setTimeout(function() { // Prevent alert from stopping UI progress update
-                alert('Upload successfully!');
-            }, 1000);
+            // setTimeout(function() { // Prevent alert from stopping UI progress update
+                let response = {
+                    "type": "add_moment",
+                    "value": file.name,
+                };
+                socket.send(JSON.stringify(response));
+
+                // }, 1000);
         }
     });
 }
-
 
 let wsStart = 'ws://';
 let loc = window.location;
@@ -68,14 +72,26 @@ if (loc.protocol === "https:"){
 //let is scoped for the closes enclosing block, var is for the nearest function block
 
 let endpoint =wsStart+loc.host+loc.pathname;
-let socket = new ReconnectingWebSocket(endpoint);
+let socket = new WebSocket(endpoint);
 let username = sessionStorage.getItem('username');
 
 socket.onmessage = function(e){
-    console.log(e);
+    let json = JSON.parse(e.data);
+    console.log(json);
+    if (json.type==="add_moment") {
+        var ul = document.getElementById("images");
+        var li = document.createElement("li");
+        li.innerHTML = '<img alt="picture" src=https://myhz.blob.core.windows.net/momentsync/' + json.value + '>';
+        ul.appendChild(li);
+    }
+    // console.log(e.data.text);
 };
 socket.onopen = function(e){
-    socket.send(username);
+    let response = {
+        "type": "init",
+        "value": username,
+    };
+    socket.send(JSON.stringify(response));
     console.log(e);
 };
 socket.onerror = function(e){

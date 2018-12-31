@@ -1,15 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from moments.models import User
+from django.contrib.auth.models import User
+from moments.models import Profile
 from moments.models import Moment
-
-
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 # import hashlib
-
 
 def about(request):
     # return HttpResponse('about')
@@ -29,13 +27,18 @@ def registration(request):
             idinfo = id_token.verify_oauth2_token(token, requests.Request(),
                                                   "133754882345-b044u4p8radcpasmq9s38sc3k0hiktsb.apps.googleusercontent.com")
             userid = idinfo['sub']
-            name = idinfo['name']
+            nameArgs = str(idinfo['name']).split(" ")
             email = idinfo['email']
-            User.objects.create(googleID=userid,username=username,name=name,email=email)
+            instance = User.objects.create(username=username,email=email,first_name=nameArgs[0], last_name=" ".join(nameArgs[1:]))
+            Profile.objects.create(user=instance, googleID=userid)
 
-            Moment.objects.create(momentID=username,name=name+"'s Moments",imgIDs=[],username=username)
+            Moment.objects.create(momentID=username, name=instance.first_name+"'s Moments", imgIDs=[], username=username)
+
+            request.session['username'] = username
+            request.session['logged_in'] = "true"
             return HttpResponse("valid")
         else:
+            request.session['logged_in'] = "false"
             return HttpResponse("invalid")
     else:
         return render(request, "registration.html")
@@ -46,6 +49,8 @@ def home(request):
     # print(hashlib.md5(b"hello").hexdigest())
     # return HttpResponse('home')
     if request.POST:
+        if request.POST.get("logout") == "true":
+            request.session['logged_in'] = "false"
         token = request.POST.get("idtoken", "")
         try:
             # Specify the CLIENT_ID of the app that accesses the backend:
@@ -66,12 +71,16 @@ def home(request):
 
             # ID token is valid. Get the user's Google Account ID from the decoded token.
             userid = idinfo['sub']
-            if User.objects.filter(googleID=userid).exists():
-                return HttpResponse("login,"+User.objects.get(googleID=userid).username)
+            if Profile.objects.filter(googleID=userid).exists():
+                username = Profile.objects.get(googleID=userid).user.username
+                request.session['username'] = username
+                request.session['logged_in'] = "true"
+                return HttpResponse("login,"+username)
             else:
                 return HttpResponse("registration")
             # print("YAY", userid)
         except ValueError:
             # Invalid token
+            request.session['logged_in'] = "false"
             pass
     return render(request, "home.html")

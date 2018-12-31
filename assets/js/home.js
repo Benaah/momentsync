@@ -43,6 +43,10 @@ function onSignIn(googleUser) {
 
 function signOut() {
     sessionStorage.clear();
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send('logout=true');
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
       // console.log('User signed out.');

@@ -1,8 +1,6 @@
 {% extends 'base_template.html' %}
 {% load static from staticfiles %}
 
-
-
 {% block externalJS %}
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="133754882345-b044u4p8radcpasmq9s38sc3k0hiktsb.apps.googleusercontent.com">
@@ -19,8 +17,7 @@
       <h3 id="main-title"><i>Moment Sync</i></h3>
       <p>Sync Your Moments</p>
       <p><b>Fast, Secure, & Simple</b></p>
-{#      <div class="g-signin2" data-onsuccess="onSignIn" style=""></div>#}
-      <a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a><br>
+      <div class="g-signin2" data-onsuccess="onSignIn" style=""></div>
       <a href="#" id="signout" onclick="signOut();">Sign out</a>
   </div>
 </div>
