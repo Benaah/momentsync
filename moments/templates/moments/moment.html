@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/moment.css' %}">
     <script src="{% static 'js/azure-storage.blob.min.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
+    <script src="http://cdn.rawgit.com/h2non/jsHashes/master/hashes.js"></script>
     <script src="{% static 'js/moment.js' %}"></script>
     <script>
     </script>
@@ -25,10 +26,10 @@
             <li>Username: {{ user.username }}</li>
         </ul>
     </div>
+    <input type="file" id="files" name="file">
+    <button id="upload-button" class="btn btn-xs btn-primary" onclick="uploadBlobByStream(false)">Upload Moment</button>
 
     <ul id="images"></ul>
-    <input type="file" id="files" name="file">
-    <button id="upload-button" class="btn btn-xs btn-primary" onclick="uploadBlobByStream(false)">UploadBlob</button>
 </h2>
 </body>
 </html>

@@ -3,6 +3,7 @@ import json
 from channels.consumer import AsyncConsumer
 from channels.db import database_sync_to_async
 from .models import Moment
+# import hashlib
 
 
 class ImageUpdateConsumer(AsyncConsumer):
@@ -31,6 +32,8 @@ class ImageUpdateConsumer(AsyncConsumer):
         print("receive", event)
         data = json.loads(event['text'])
         if data['type'] == "add_moment":
+            # image_id_args=str(data['value']).split(".")
+            # hashed_image_id = hashlib.md5(image_id_args[0].encode()).hexdigest() + "." +image_id_args[1]
             await self.channel_layer.group_send(
                 "cool",
                 {

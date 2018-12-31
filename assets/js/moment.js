@@ -9,6 +9,7 @@
 //     DoWhatever();
 //   }
 // }
+let MD5 = new Hashes.MD5;
 
 function getBlobService() {
     blobUri = 'https://' + 'myhz.blob.core.windows.net';
@@ -42,8 +43,11 @@ function uploadBlobByStream(checkMD5) {
     };
     blobService.singleBlobPutThresholdInBytes = blockSize;
 
+
+    hashedName = MD5.hex(file.name);
+
     var finishedOrError = false;
-    var speedSummary = blobService.createBlockBlobFromBrowserFile("momentsync", file.name, file, options, function(error, result, response) {
+    var speedSummary = blobService.createBlockBlobFromBrowserFile("momentsync", hashedName, file, options, function(error, result, response) {
         finishedOrError = true;
         btn.disabled = false;
         btn.innerHTML = 'UploadBlob';
@@ -54,7 +58,7 @@ function uploadBlobByStream(checkMD5) {
             // setTimeout(function() { // Prevent alert from stopping UI progress update
                 let response = {
                     "type": "add_moment",
-                    "value": file.name,
+                    "value": hashedName,
                 };
                 socket.send(JSON.stringify(response));
 
@@ -82,7 +86,7 @@ socket.onmessage = function(e){
         var ul = document.getElementById("images");
         var li = document.createElement("li");
         li.innerHTML = '<img alt="picture" src=https://myhz.blob.core.windows.net/momentsync/' + json.value + '>';
-        ul.appendChild(li);
+        ul.prepend(li);
     }
     // console.log(e.data.text);
 };
