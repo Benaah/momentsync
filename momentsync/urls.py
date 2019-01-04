@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('moments/', include('moments.urls')),
     url(r'^about/$', views.about),
-    url(r'^$', views.home),
+    url(r'^$', views.home, name='homepage'),
     url(r'^registration/.*', views.registration, name='registration'),
 
     # url(r'^accounts/', include('allauth.urls')),

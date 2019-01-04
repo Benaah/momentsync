@@ -29,7 +29,6 @@ function onSignIn(googleUser) {
     xhr.onload = function() {
       if (xhr.responseText.startsWith("login")){
           var username = xhr.responseText.split(",")[1];
-          sessionStorage.setItem("username", username);
           window.location.replace("/moments/"+username);
       }else if(xhr.responseText==="registration"){
           console.log("REGISRATING");
@@ -42,7 +41,6 @@ function onSignIn(googleUser) {
 }
 
 function signOut() {
-    sessionStorage.clear();
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/');
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');

@@ -10,7 +10,6 @@ class ImageUpdateConsumer(AsyncConsumer):
     async def websocket_connect(self, event):
         print("connected", event)
 
-
         momentID = self.scope['url_route']['kwargs']['momentID']
 
         await self.channel_layer.group_add(
@@ -22,29 +21,48 @@ class ImageUpdateConsumer(AsyncConsumer):
             "type": "websocket.accept"
         })
 
-        #channel_name are UNIQUE hashes for EACH connected consumer
-        # await self.send({
-        #     "type": "websocket.send",
-        #     "text": self.channel_name
-        # })
-
     async def websocket_receive(self, event):
         print("receive", event)
         data = json.loads(event['text'])
         if data['type'] == "add_moment":
+            momentID = self.scope['url_route']['kwargs']['momentID']
+            imageid = data['value']
+            await self.add_moment_to_database(momentID, imageid)
             # image_id_args=str(data['value']).split(".")
             # hashed_image_id = hashlib.md5(image_id_args[0].encode()).hexdigest() + "." +image_id_args[1]
             await self.channel_layer.group_send(
                 "cool",
                 {
-                    'type': 'updateMoment',
-                    'image_name': data['value']
+                    'type': 'addmoment',
+                    'image_name': imageid
+                }
+            )
+        elif data['type'] == "delete_moment":
+            momentID = self.scope['url_route']['kwargs']['momentID']
+            imageid = data['value']
+            await self.remove_moment_from_database(momentID, imageid)
+            await self.channel_layer.group_send(
+                "cool",
+                {
+                    'type': 'removemoment',
+                    'image_name': imageid
                 }
             )
 
-    async def updateMoment(self, event):
+
+    async def addmoment(self, event):
         response = {
             "type": "add_moment",
+            "value": event['image_name']
+        }
+        await self.send({
+            "type": "websocket.send",
+            "text": json.dumps(response),
+        })
+
+    async def removemoment(self, event):
+        response = {
+            "type": "delete_moment",
             "value": event['image_name']
         }
         await self.send({
@@ -63,9 +81,15 @@ class ImageUpdateConsumer(AsyncConsumer):
     # the prefix "await" to comply with async
 
     @database_sync_to_async
-    def add_image(self, username, imageid):
-        return Moment.objects.get(username=username).imgIDs.append(imageid)
+    def add_moment_to_database(self, momentid, imageid):
+        mod = Moment.objects.get(momentID=momentid)
+        mod.imgIDs.append(imageid)
+        mod.save()
 
     @database_sync_to_async
-    def remove_image(self, username, imageid):
-        return Moment.objects.get(username=username).imgIDs.remove(imageid)
+    def remove_moment_from_database(self, momentid, imageid):
+        mod = Moment.objects.get(momentID=momentid)
+        print(mod.imgIDs)
+        print(imageid)
+        mod.imgIDs.remove(imageid)
+        mod.save()
