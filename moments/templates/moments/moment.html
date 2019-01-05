@@ -9,66 +9,33 @@
     <script src="{% static 'js/azure-storage.blob.min.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
-    <script src="http://cdn.rawgit.com/h2non/jsHashes/master/hashes.js"></script>
+    <script src="https://cdn.rawgit.com/h2non/jsHashes/master/hashes.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet">
+    <script src="{% static 'js/load-image.all.min.js' %}"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.1.0/exif.min.js"></script>
 
-        <meta name="google-signin-scope" content="profile email">
-    <meta name="google-signin-client_id" content="133754882345-b044u4p8radcpasmq9s38sc3k0hiktsb.apps.googleusercontent.com">
 
-    <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id"
+          content="133754882345-b044u4p8radcpasmq9s38sc3k0hiktsb.apps.googleusercontent.com">
+
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.0/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
 
-    <script src="{% static 'js/moment.js' %}"></script>
 
 </head>
-<body>
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{#<br>#}
-{##}
-{#    <input type="file" id="files" name="file">#}
-{#    <button id="upload-button" class="btn btn-xs btn-primary" onclick="uploadBlobByStream()">Upload Moment</button>#}
-{##}
-{#    <ul id="images">#}
-{#        {% for img_id in moment.imgIDs %}#}
-{#            <li><img alt="picture" src={{"https://myhz.blob.core.windows.net/momentsync/"|add:img_id}}></li>#}
-{#        {% endfor %}#}
-{#    </ul>#}
-{#    <div>#}
-{#        {% for img_id in moment.imgIDs %}#}
-{#            make this link do like some opening pop up of image#}
-{#            <a href={{"https://myhz.blob.core.windows.net/momentsync/"|add:img_id}}>#}
-{#                <figure>#}
-{#                  <img alt="Moment" src={{"https://myhz.blob.core.windows.net/momentsync/"|add:img_id}}>#}
-{#                  <figcaption>#}
-{#                    something#}
-{#                  </figcaption>#}
-{#                </figure>#}
-{#            </a>#}
-{#        {% endfor %}#}
-{#    </div>#}
-
+<body onresize="resizeListener()">
 
 <header class="nav-down">
     <div class="topnav">
         <a class="active" href="#">MomentSync</a>
         <div class="topnav-right">
-            <a href="javascript:;">{{ user.first_name }}<i class="material-icons md-20 logout-icon">power_settings_new</i></a>
+            <a href="javascript:;">{{ user.first_name }}<i
+                    class="material-icons md-20 logout-icon">power_settings_new</i></a>
         </div>
     </div>
 </header>
@@ -100,17 +67,21 @@
     <div class="container">
         <div id="moments" class="columns is-multiline">
             {% for img_id in moment.imgIDs reversed %}
-                <div id={{img_id}} class="column is-one-quarter">
-                    <figure class="image is-5by4 popup">
-                        <img alt="Moment" src={{ "https://myhz.blob.core.windows.net/momentsync/"|add:img_id }}>
-                    </figure>
+                <div id={{ img_id }} class="column is-one-quarter">
+                <figure class="image is-5by4 popup">
+                    <img alt="Moment" src={{ "https://cdn.momentsync.net/momentsync/"|add:img_id }}>
+                </figure>
                 </div>
             {% endfor %}
-        </div>
-        <div class="camera_button"><i class="material-icons md-40" style="color: #fffeec;">photo_camera</i></div>
+    </div>
+    <div id="camera_id" class="camera_button">
+        <label for="imgupload">
+            <i class="material-icons md-40" style="color: #fffeec;">photo_camera</i>
+        </label>
     </div>
 </section>
 <!-- /.section -->
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 </body>
 
 <div class="show">
@@ -128,12 +99,11 @@
         <video id="video" autoplay></video>
         <i id="cameraid" class="shutter-button material-icons md-40" style="color: white">panorama_fish_eye</i>
         <span class="closeButton" style="color: white">X</span>
-        {#        <button id="snap">Snap Photo</button>#}
-        {#        <canvas id="canvas" width="640" height="480"></canvas>#}
     </div>
 </div>
 
 <script>
     video = document.getElementById('video');
 </script>
+<script src="{% static 'js/moment.js' %}"></script>
 </html>

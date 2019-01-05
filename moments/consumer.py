@@ -13,7 +13,7 @@ class ImageUpdateConsumer(AsyncConsumer):
         momentID = self.scope['url_route']['kwargs']['momentID']
 
         await self.channel_layer.group_add(
-            "cool",
+            momentID,
             self.channel_name
         )
 
@@ -31,7 +31,7 @@ class ImageUpdateConsumer(AsyncConsumer):
             # image_id_args=str(data['value']).split(".")
             # hashed_image_id = hashlib.md5(image_id_args[0].encode()).hexdigest() + "." +image_id_args[1]
             await self.channel_layer.group_send(
-                "cool",
+                momentID,
                 {
                     'type': 'addmoment',
                     'image_name': imageid
@@ -42,7 +42,7 @@ class ImageUpdateConsumer(AsyncConsumer):
             imageid = data['value']
             await self.remove_moment_from_database(momentID, imageid)
             await self.channel_layer.group_send(
-                "cool",
+                momentID,
                 {
                     'type': 'removemoment',
                     'image_name': imageid
@@ -71,9 +71,10 @@ class ImageUpdateConsumer(AsyncConsumer):
         })
 
     async def websocket_disconnect(self, event):
+        momentID = self.scope['url_route']['kwargs']['momentID']
         print("disconnected", event)
         await self.channel_layer.group_discard(
-            "cool",
+            momentID,
             self.channel_name
         )
 

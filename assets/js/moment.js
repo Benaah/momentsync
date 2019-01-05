@@ -1,15 +1,3 @@
-// function checkIfLoggedIn() {
-//   if(sessionStorage.getItem('username') == null){
-//     window.location.href='';
-//   } else {
-//     //User already logged in
-//     var userEntity = {};
-//     userEntity = JSON.parse(sessionStorage.getItem('myUserEntity'));
-//     ...
-//     DoWhatever();
-//   }
-// }
-
 function onLoad() {
     gapi.load('auth2', function () {
         gapi.auth2.init();
@@ -21,36 +9,65 @@ function signOut() {
     xhr.open('POST', window.location.href, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.send("logout=true");
-    console.log("fuck");
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
     });
     window.location.href = "https://momentsync.net";
 }
 
+function resizeListener() {
+    var cameraDiv = document.getElementById("camera_id");
+    if (screen.width <= 450) {
+        if (!document.getElementById("imgupload")) {
+            var cameraInput = document.createElement("input");
+            cameraInput.id = "imgupload";
+            cameraInput.type = "file";
+            cameraInput.name = "image";
+            cameraInput.accept = "image/*";
+            cameraInput.capture = "environment";
+            cameraDiv.append(cameraInput);
+            cameraInput.addEventListener('change', function () {
+                var image = $('#imgupload').prop('files')[0];
+
+                if (window.File && window.FileReader && window.FileList && window.Blob) {
+                    var reader = new FileReader();
+                    // Closure to capture the file information.
+                    reader.addEventListener("load", function (e) {
+                        const imageData = e.target.result;
+                        window.loadImage(imageData, function (img) {
+                            if (img.type === "error") {
+                                console.log("couldn't load image:", img);
+                            } else {
+                                window.EXIF.getData(img, function () {
+                                    var orientation = window.EXIF.getTag(this, "Orientation");
+                                    var canvas = window.loadImage.scale(img, {
+                                        orientation: orientation || 0,
+                                        canvas: true
+                                    });
+                                    uploadBlobByStream(dataURLtoFile(canvas.toDataURL("image/jpeg",0.75)));
+                                    // or using jquery $("#container").append(canvas);
+                                });
+                            }
+                        });
+                    });
+                    reader.readAsDataURL(image);
+                } else {
+                    console.log('The File APIs are not fully supported in this browser.');
+                }
+            })
+        }
+        // <input id="imgupload" type="file" name="image" accept="image/*" capture="environment">
+    } else {
+        removeElement("imgupload");
+    }
+}
+
+resizeListener();
+
 //video BEGIN
 
 // var video;
 var videowidth, videoheight;
-//
-// navigator.getUserMedia = (navigator.getUserMedia ||
-//                           navigator.webkitGetUserMedia ||
-//                           navigator.mozGetUserMedia ||
-//                           navigator.msGetUserMedia ||
-//                           navigator.oGetUserMedia );
-//
-//
-// // Get access to the camera!
-// if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-//     // Not adding `{ audio: true }` since we only want video now
-//     navigator.mediaDevices.getUserMedia({video: true}).then(function (stream) {
-//         //video.src = window.URL.createObjectURL(stream);
-//         video.srcObject = stream;
-//         videowidth = stream.getVideoTracks()[0].getSettings().width;
-//         videoheight = stream.getVideoTracks()[0].getSettings().height;
-//         video.play();
-//     });
-// }
 var canvas = document.createElement('canvas');
 var context = canvas.getContext('2d');
 
@@ -101,10 +118,6 @@ window.addEventListener("DOMContentLoaded", function () {
         }, errBack);
     }
 
-    // Trigger photo take
-    document.getElementById('snap').addEventListener('click', function () {
-        context.drawImage(video, 0, 0, 640, 480);
-    });
 }, false);
 
 
@@ -151,12 +164,6 @@ function hasScrolled() {
 
 function decodeBase64Image(dataString) {
     var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    // response = {};
-
-    // var image = new Image();
-    // image.src = 'data:image/png;base64,'+matches[2];
-    // response.data = new Buffer(matches[2], 'base64');
-    // response.data = 'data:image/jpeg,base64,'+matches[2];
     return atob(matches[2]);
 
 }
@@ -180,24 +187,25 @@ $(function () {
 
     $('.topnav-right a').click(function (event) {
         event.preventDefault();
-        console.log("fucasdk");
         signOut();
     });
 
     $(".camera_button").click(function () {
-        $('header').removeClass('nav-down').addClass('nav-up');
-        $(".camera_button").fadeOut();
-        $(".camera-view").fadeIn();
+        if (screen.width > 450) {
+            $('header').removeClass('nav-down').addClass('nav-up');
+            $(".camera_button").fadeOut();
+            $(".camera-view").fadeIn();
 
-        let videoDisplay = $("video");
+            // let videoDisplay = $("video");
 
-        canvas.width = videoDisplay.width();
-        canvas.height = videoDisplay.height();
+            canvas.width = videowidth;
+            canvas.height = videoheight;
 
-        // console.log(canvas.width);
-        // console.log(canvas.height);
+            // console.log(canvas.width);
+            // console.log(canvas.height);
 
-        // Trigger photo take
+            // Trigger photo take
+        }
     });
 
     $(".popup img").click(function () {
@@ -234,12 +242,9 @@ $(function () {
     });
 
     $(".shutter-button").click(function () {
-
-        // var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        var image = canvas.toDataURL("image/png");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
-        var filename = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        uploadBlobByStream(filename, dataURLtoFile(image));
+        var image = canvas.toDataURL("image/jpeg");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+        uploadBlobByStream(dataURLtoFile(image));
 
     })
 
@@ -249,13 +254,14 @@ $(function () {
 let MD5 = new Hashes.MD5;
 
 function getBlobService() {
-    blobUri = 'https://' + 'myhz.blob.core.windows.net';
-    blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=o&sp=c&se=2019-12-27T12:01:42Z&st=2018-12-27T04:01:42Z&spr=https&sig=D%2FN9Loq%2Fp60xBVbcK6BaUjttORWQNjM4g1a0chSXpA8%3D');
+    blobUri = 'https://' + 'cdn.momentsync.net';
+    blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=sco&sp=wac&se=2020-01-05T23:54:38Z&st=2019-01-05T15:54:38Z&spr=https,http&sig=g4yUqdENm2Ki1Y41yb0elw8%2BNPPvxVmYYcVCOaQg3rI%3D');
 
     return blobService;
 }
 
-function uploadBlobByStream(name, image) {
+function uploadBlobByStream(image) {
+    var name = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     // var files = document.getElementById('files').files;
     // if (!files.length) {
@@ -283,7 +289,7 @@ function uploadBlobByStream(name, image) {
         storeBlobContentMD5: false,
         blockSize: blockSize,
         contentSettings: {
-            contentType: "image/png"
+            contentType: "image/jpeg"
         }
     };
     blobService.singleBlobPutThresholdInBytes = blockSize;
@@ -360,7 +366,8 @@ socket.onmessage = function (e) {
 function removeElement(elementId) {
     // Removes an element from the document
     var element = document.getElementById(elementId);
-    element.parentNode.removeChild(element);
+    if (element)
+        element.parentNode.removeChild(element);
 }
 
 socket.onopen = function (e) {

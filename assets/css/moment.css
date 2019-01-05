@@ -2,7 +2,8 @@
 
 
 .popup img {
-    cursor: pointer
+    cursor: pointer;
+    object-fit: cover;
 }
 
 .show {
@@ -56,6 +57,11 @@
     left: 10px;
     z-index: 97;
     cursor: pointer;
+}
+
+.camera_button > input
+{
+    display: none;
 }
 
 .shutter-button{
@@ -150,7 +156,7 @@ header {
     right: 3%;
     width: 65px;
     border-radius: 50%;
-    height: 65px;
+    height: 60px;
     z-index: 99;
     background: #ff9200;
     display: flex;
