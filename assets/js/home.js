@@ -29,6 +29,7 @@ function onSignIn(googleUser) {
     xhr.onload = function() {
       if (xhr.responseText.startsWith("login")){
           var username = xhr.responseText.split(",")[1];
+          console.log("yeyeyeyeyye");
           window.location.replace("/moments/"+username);
       }else if(xhr.responseText==="registration"){
           console.log("REGISRATING");

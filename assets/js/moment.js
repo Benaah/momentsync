@@ -25,25 +25,90 @@ function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
     });
-    window.location.href="http://localhost:8000";
+    window.location.href = "https://momentsync.net";
 }
 
-var video;
+//video BEGIN
+
+// var video;
 var videowidth, videoheight;
-
-// Get access to the camera!
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    // Not adding `{ audio: true }` since we only want video now
-    navigator.mediaDevices.getUserMedia({video: true}).then(function (stream) {
-        //video.src = window.URL.createObjectURL(stream);
-        video.srcObject = stream;
-        videowidth = stream.getVideoTracks()[0].getSettings().width;
-        videoheight = stream.getVideoTracks()[0].getSettings().height;
-        video.play();
-    });
-}
+//
+// navigator.getUserMedia = (navigator.getUserMedia ||
+//                           navigator.webkitGetUserMedia ||
+//                           navigator.mozGetUserMedia ||
+//                           navigator.msGetUserMedia ||
+//                           navigator.oGetUserMedia );
+//
+//
+// // Get access to the camera!
+// if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+//     // Not adding `{ audio: true }` since we only want video now
+//     navigator.mediaDevices.getUserMedia({video: true}).then(function (stream) {
+//         //video.src = window.URL.createObjectURL(stream);
+//         video.srcObject = stream;
+//         videowidth = stream.getVideoTracks()[0].getSettings().width;
+//         videoheight = stream.getVideoTracks()[0].getSettings().height;
+//         video.play();
+//     });
+// }
 var canvas = document.createElement('canvas');
 var context = canvas.getContext('2d');
+
+// Put event listeners into place
+window.addEventListener("DOMContentLoaded", function () {
+    // Grab elements, create settings, etc.
+    var context = canvas.getContext('2d');
+    var video = document.getElementById('video');
+    var mediaConfig = {video: true};
+    var errBack = function (e) {
+        console.log('An error has occurred!', e)
+    };
+
+    // Put video listeners into place
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia(mediaConfig).then(function (stream) {
+            //video.src = window.URL.createObjectURL(stream);
+
+            videowidth = stream.getVideoTracks()[0].getSettings().width;
+            videoheight = stream.getVideoTracks()[0].getSettings().height;
+
+            video.srcObject = stream;
+            video.play();
+        });
+    }
+
+    /* Legacy code below! */
+    else if (navigator.getUserMedia) { // Standard
+        navigator.getUserMedia(mediaConfig, function (stream) {
+            video.src = stream;
+            videowidth = stream.getVideoTracks()[0].getSettings().width;
+            videoheight = stream.getVideoTracks()[0].getSettings().height;
+            video.play();
+        }, errBack);
+    } else if (navigator.webkitGetUserMedia) { // WebKit-prefixed
+        navigator.webkitGetUserMedia(mediaConfig, function (stream) {
+            video.src = window.webkitURL.createObjectURL(stream);
+            videowidth = stream.getVideoTracks()[0].getSettings().width;
+            videoheight = stream.getVideoTracks()[0].getSettings().height;
+            video.play();
+        }, errBack);
+    } else if (navigator.mozGetUserMedia) { // Mozilla-prefixed
+        navigator.mozGetUserMedia(mediaConfig, function (stream) {
+            video.src = window.URL.createObjectURL(stream);
+            videowidth = stream.getVideoTracks()[0].getSettings().width;
+            videoheight = stream.getVideoTracks()[0].getSettings().height;
+            video.play();
+        }, errBack);
+    }
+
+    // Trigger photo take
+    document.getElementById('snap').addEventListener('click', function () {
+        context.drawImage(video, 0, 0, 640, 480);
+    });
+}, false);
+
+
+//video end
 
 // Hide Header on on scroll down
 var didScroll;
@@ -124,9 +189,10 @@ $(function () {
         $(".camera_button").fadeOut();
         $(".camera-view").fadeIn();
 
-        cameraDisplay = $(".camera-display");
-        canvas.width = videowidth;
-        canvas.height = videoheight;
+        let videoDisplay = $("video");
+
+        canvas.width = videoDisplay.width();
+        canvas.height = videoDisplay.height();
 
         // console.log(canvas.width);
         // console.log(canvas.height);
@@ -184,7 +250,6 @@ let MD5 = new Hashes.MD5;
 
 function getBlobService() {
     blobUri = 'https://' + 'myhz.blob.core.windows.net';
-    // blobUri = 'https://' + 'storage.markyhzhang.com';
     blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=o&sp=c&se=2019-12-27T12:01:42Z&st=2018-12-27T04:01:42Z&spr=https&sig=D%2FN9Loq%2Fp60xBVbcK6BaUjttORWQNjM4g1a0chSXpA8%3D');
 
     return blobService;
@@ -267,7 +332,7 @@ socket.onmessage = function (e) {
         moment.id = json.value;
         moment.classList.add("column");
         moment.classList.add("is-one-quarter");
-        moment.innerHTML = '<figure class="image is-5by4 popup"><img alt="Moment" src="https://myhz.blob.core.windows.net/momentsync/' + json.value + '"</figure>';
+        moment.innerHTML = '<figure class="image is-5by4 popup"><img alt="Moment" src="https://cdn.momentsync.net/momentsync/' + json.value + '"</figure>';
         momentContainer.prepend(moment);
 
         $(".popup img").click(function () {
