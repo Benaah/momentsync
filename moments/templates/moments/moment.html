@@ -8,14 +8,15 @@
     <link rel="stylesheet" href="{% static 'css/moment.css' %}">
     <script src="{% static 'js/azure-storage.blob.min.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.4/jquery.lazy.min.js"></script>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.4/jquery.lazy.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
     <script src="https://cdn.rawgit.com/h2non/jsHashes/master/hashes.js"></script>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-load-image/2.20.1/load-image.all.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.1.0/exif.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.1.0/exif.min.js"></script>
 
 
     <meta name="google-signin-scope" content="profile email">
@@ -30,7 +31,7 @@
 
 
 </head>
-<body onresize="resizeListener()">
+<body>
 
 <header class="nav-down">
     <div class="topnav">
@@ -71,7 +72,8 @@
             {% for img_id in moment.imgIDs reversed %}
                 <div id={{ img_id }} class="column is-one-quarter">
                 <figure class="image is-5by4 popup">
-                    <img class="lazy" src="https://via.placeholder.com/250?text=Loading..." alt="Moment" data-src={{ "https://cdn.momentsync.net/momentsync/"|add:img_id }}>
+                    <img class="lazy" src="https://via.placeholder.com/250?text=Loading..." alt="Moment"
+                         data-src={{ "https://cdn.momentsync.net/momentsync/"|add:img_id }}>
                 </figure>
                 </div>
             {% endfor %}

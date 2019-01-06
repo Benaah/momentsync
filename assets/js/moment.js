@@ -85,6 +85,22 @@ var canvas = document.createElement('canvas');
 var context = canvas.getContext('2d');
 var videoStream;
 
+var first = true;
+
+if (!isMobile()) {
+    startCamera();
+}
+
+function cameraInit(){
+    if(first){
+        setTimeout(() => {
+            first = false;
+            videoStream.getTracks().forEach(track => track.stop());
+        }, 1500);
+    }
+}
+
+
 function startCamera() {
     if (!isMobile()) {
         // Grab elements, create settings, etc.
@@ -104,6 +120,7 @@ function startCamera() {
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
 
                 video.srcObject = stream;
+                cameraInit();
                 // video.play();
             });
         }
@@ -115,6 +132,7 @@ function startCamera() {
                 video.src = stream;
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
+                cameraInit();
                 // video.play();
             }, errBack);
         } else if (navigator.webkitGetUserMedia) { // WebKit-prefixed
@@ -123,6 +141,7 @@ function startCamera() {
                 video.src = window.webkitURL.createObjectURL(stream);
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
+                cameraInit();
                 // video.play();
             }, errBack);
         } else if (navigator.mozGetUserMedia) { // Mozilla-prefixed
@@ -131,13 +150,12 @@ function startCamera() {
                 video.src = window.URL.createObjectURL(stream);
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
+                cameraInit();
                 // video.play();
             }, errBack);
         }
     }
 }
-
-//video end
 
 // Hide Header on on scroll down
 var didScroll;
@@ -277,8 +295,8 @@ let MD5 = new Hashes.MD5;
 
 function getBlobService() {
     blobUri = 'https://' + 'cdn.momentsync.net';
-    blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=sco&sp=wac&se=2020-01-05T23:54:38Z&st=2019-01-05T15:54:38Z&spr=https,http&sig=g4yUqdENm2Ki1Y41yb0elw8%2BNPPvxVmYYcVCOaQg3rI%3D');
-
+    // blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=sco&sp=wac&se=2020-01-05T23:54:38Z&st=2019-01-05T15:54:38Z&spr=https,http&sig=g4yUqdENm2Ki1Y41yb0elw8%2BNPPvxVmYYcVCOaQg3rI%3D');
+    blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=sco&sp=rwac&se=2020-01-07T06:48:44Z&st=2019-01-06T22:48:44Z&spr=https&sig=zluU%2BtdRABNIjD585oP6tV%2BtJ8xrs1VDDrJTsd9aIAA%3D');
     return blobService;
 }
 
@@ -307,7 +325,8 @@ function uploadBlobByStream(image) {
 
     hashedName = MD5.hex(name);
 
-    var speedSummary = blobService.createBlockBlobFromBrowserFile("momentsync", hashedName, file, options, function (error, result, response) {
+    // var speedSummary = blobService.createBlockBlobFromBrowserFile("momentsync", hashedName, file, options, function (error, result, response) {
+    var speedSummary = blobService.createBlockBlobFromBrowserFile("images", hashedName, file, options, function (error, result, response) {
         if (error) {
             alert('Upload failed');
             console.log(error);
@@ -344,13 +363,13 @@ socket.onmessage = function (e) {
         var moment = document.getElementById("tempmoment_" + tempQueue.shift());
         if (moment) {
             moment.id = json.value;
-            moment.innerHTML = '<figure class="image is-5by4 popup"><img class="lazy" src="https://via.placeholder.com/250?text=Loading..." alt="Moment" data-src="https://cdn.momentsync.net/momentsync/' + json.value + '"></figure>';
+            moment.innerHTML = '<figure class="image is-5by4 popup"><img class="lazy" src="https://via.placeholder.com/250?text=Loading..." alt="Moment" data-src="https://cdn.momentsync.net/images/' + json.value + '"></figure>';
         } else {
             moment = document.createElement("div");
             moment.id = json.value;
             moment.classList.add("column");
             moment.classList.add("is-one-quarter");
-            moment.innerHTML = '<figure class="image is-5by4 popup"><img class="lazy" src="https://via.placeholder.com/250?text=Loading..." alt="Moment" data-src="https://cdn.momentsync.net/momentsync/' + json.value + '"</figure>';
+            moment.innerHTML = '<figure class="image is-5by4 popup"><img class="lazy" src="https://via.placeholder.com/250?text=Loading..." alt="Moment" data-src="https://cdn.momentsync.net/images/' + json.value + '"</figure>';
             momentContainer.prepend(moment);
         }
 
