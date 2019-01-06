@@ -80,17 +80,15 @@ function isMobile() {
 //video BEGIN
 
 // var video;
-var videowidth, videoheight;
+var videowidth, videoheight, video;
 var canvas = document.createElement('canvas');
 var context = canvas.getContext('2d');
+var videoStream;
 
-// Put event listeners into place
-
-if (!isMobile()) {
-    window.addEventListener("DOMContentLoaded", function () {
+function startCamera() {
+    if (!isMobile()) {
         // Grab elements, create settings, etc.
-        var context = canvas.getContext('2d');
-        var video = document.getElementById('video');
+        video = document.getElementById('video');
         var mediaConfig = {video: true};
         var errBack = function (e) {
             console.log('An error has occurred!', e)
@@ -99,43 +97,45 @@ if (!isMobile()) {
         // Put video listeners into place
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia(mediaConfig).then(function (stream) {
+                videoStream = stream;
                 //video.src = window.URL.createObjectURL(stream);
 
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
 
                 video.srcObject = stream;
-                video.play();
+                // video.play();
             });
         }
 
         /* Legacy code below! */
         else if (navigator.getUserMedia) { // Standard
             navigator.getUserMedia(mediaConfig, function (stream) {
+                videoStream = stream;
                 video.src = stream;
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
-                video.play();
+                // video.play();
             }, errBack);
         } else if (navigator.webkitGetUserMedia) { // WebKit-prefixed
             navigator.webkitGetUserMedia(mediaConfig, function (stream) {
+                videoStream = stream;
                 video.src = window.webkitURL.createObjectURL(stream);
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
-                video.play();
+                // video.play();
             }, errBack);
         } else if (navigator.mozGetUserMedia) { // Mozilla-prefixed
             navigator.mozGetUserMedia(mediaConfig, function (stream) {
+                videoStream = stream;
                 video.src = window.URL.createObjectURL(stream);
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
-                video.play();
+                // video.play();
             }, errBack);
         }
-
-    }, false);
+    }
 }
-
 
 //video end
 
@@ -204,19 +204,13 @@ $(function () {
 
     $(".camera_button").click(function () {
         if (!isMobile()) {
+            startCamera();
             $('header').removeClass('nav-down').addClass('nav-up');
             $(".camera_button").fadeOut();
             $(".camera-view").fadeIn();
 
-            // let videoDisplay = $("video");
-
             canvas.width = videowidth;
             canvas.height = videoheight;
-
-            // console.log(canvas.width);
-            // console.log(canvas.height);
-
-            // Trigger photo take
         }
     });
 
@@ -233,6 +227,8 @@ $(function () {
         $(".camera-view").fadeOut();
         $(".camera_button").fadeIn();
         $('header').removeClass('nav-up').addClass('nav-down');
+        videoStream.getTracks().forEach(track => track.stop())
+
 
     });
 
@@ -369,6 +365,8 @@ socket.onmessage = function (e) {
         });
 
         $(".closeButton, .overlay").click(function () {
+            videoStream.getTracks().forEach(track => track.stop());
+
             $(".show").fadeOut();
             $(".camera-view").fadeOut();
             $(".camera_button").fadeIn();
