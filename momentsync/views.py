@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 
 from moments.models import Profile
 from moments.models import Moment
+from moments.models import InviteCode
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -24,6 +25,14 @@ def registration(request):
     if request.POST:
         username = request.POST.get("username", "")
         token = request.POST.get("googleToken","")
+        inviteCode = request.POST.get("inviteCode","")
+
+        if InviteCode.objects.filter(code=inviteCode).exists() and InviteCode.objects.get(code=inviteCode).uses_left>0:
+            invitecode_db = InviteCode.objects.get(code=inviteCode)
+            invitecode_db.uses_left -= 1
+            invitecode_db.save()
+        else:
+            return HttpResponse("bad_invite")
 
         if not User.objects.filter(username=username).exists():
             idinfo = id_token.verify_oauth2_token(token, requests.Request(),

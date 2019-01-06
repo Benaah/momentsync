@@ -1,0 +1,38 @@
+{% extends 'base_template.html' %}
+{% load static from staticfiles %}
+
+{% block externalCSS %}
+    <link href="{% static 'css/registration.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block externalJS %}
+    <script src="{% static 'js/registration.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="container">
+
+            <h3 id="main-title"><i>Enter an Username</i></h3>
+            <div class="row">
+                <p>This will be the identifier</p>
+                <p>for your moments</p>
+            </div>
+            <form action="#" onsubmit="onRegister(); return false">
+                <div class="row">
+                    <div class="eight column">
+                        <input class="u-full-width" placeholder="username123" id="id_username">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="eight column">
+                        <input class="u-full-width" placeholder="secret invite code" id="id_invite_code">
+                    </div>
+                    <div class="four column">
+                        <input class="button-primary" type="submit" value="Submit">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

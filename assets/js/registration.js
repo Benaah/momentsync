@@ -3,6 +3,8 @@ function badUsername(str) {
 }
 
 function onRegister(){
+    let inviteCode = document.getElementById("id_invite_code").value;
+
     let username = document.getElementById("id_username").value;
 
     if (badUsername(username)){
@@ -16,17 +18,18 @@ function onRegister(){
     postRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     postRequest.onload = function() {
       if (postRequest.responseText==="valid"){
-          sessionStorage.setItem("username", username);
           window.location.replace("/moments/"+username);
       }else if(postRequest.responseText==="invalid"){
-          console.log("Username Taken");
+          alert("Invalid Username!")
+      }else if(postRequest.responseText==="bad_invite"){
+          alert("Invalid Invitation Code!")
       }
     };
 
     const urlParams = new URLSearchParams(window.location.search);
     const id_token = urlParams.get('token');
 
-    postRequest.send('username=' + username+'&googleToken='+id_token);
+    postRequest.send('username=' + username+'&googleToken='+id_token+'&inviteCode='+inviteCode);
     console.log("OK SENT! "+'username=' + username+'&googleToken='+id_token)
 
     return false;

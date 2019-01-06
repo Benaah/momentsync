@@ -4,6 +4,14 @@ from django.contrib.postgres.fields import ArrayField
 from annoying.fields import AutoOneToOneField
 
 
+class InviteCode(models.Model):
+    code = models.CharField(max_length=100)
+    uses_left = models.IntegerField()
+
+    def __str__(self):
+        return "[" + str(self.uses_left) +"] " +self.code
+
+
 class Moment(models.Model):
     momentID = models.CharField(primary_key=True, max_length=60)
     name = models.CharField(max_length=33, null=True)
