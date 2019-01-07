@@ -7,7 +7,7 @@
     <title>Moments</title>
     <link rel="stylesheet" href="{% static 'css/moment.css' %}">
     <script src="{% static 'js/azure-storage.blob.min.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script type="text/javascript"
             src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.4/jquery.lazy.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
@@ -18,6 +18,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-load-image/2.20.1/load-image.all.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.1.0/exif.min.js"></script>
 
+
+    <!-- x-editable (bootstrap version) -->
+{#    <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.6/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet"/>#}
+{#    <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.6/bootstrap-editable/js/bootstrap-editable.min.js"></script>#}
 
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id"
@@ -54,7 +58,7 @@
                             <h1 class="title is-size-4">{{ moment.name }}</h1>
                             <p class="subtitle is-size-5">ID: {{ moment.momentID }}</p>
                             <p class="is-size-5">
-                                Here you can write some descriptions about your moments!
+                                {{ moment.description }}
                             </p>
                         </div>
                     </div>
@@ -73,7 +77,7 @@
                 <div id={{ img_id }} class="column is-one-quarter">
                 <figure class="image is-5by4 popup">
                     <img class="lazy" src="https://via.placeholder.com/250?text=Loading..." alt="Moment"
-                         data-src={{ "https://cdn.momentsync.net/momentsync/"|add:img_id }}>
+                         data-src={{ "https://cdn.momentsync.net/images/"|add:img_id }}>
                 </figure>
                 </div>
             {% endfor %}

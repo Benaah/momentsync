@@ -8,20 +8,22 @@ from momentsync import views
 
 from .models import Moment
 from django.contrib.auth.models import User
-from .models import Profile
-
-from momentsync import apps
 
 
 @csrf_exempt
 def moment(request, momentID):
     if request.POST.get("logout") == "true":
-        print("yes")
         request.session['logged_in'] = "false"
 
-    if 'username' in request.session and 'logged_in' in request.session and momentID == request.session['username'] and request.session['logged_in']=="true":
+    if not Moment.objects.filter(momentID=momentID).exists():
+        return HttpResponse("404 Not Found")
+
+    moment = Moment.objects.get(momentID=momentID)
+
+    current_username = request.session['username']
+
+    if 'username' in request.session and 'logged_in' in request.session and request.session['logged_in'] == "true" and moment.allowed_usernames.__contains__(current_username):
         print(request.session['username'], request.session['logged_in'])
-        moment = Moment.objects.get(momentID=momentID)
-        return render(request, 'moments/moment.html', {"moment": moment, "user": (User.objects.get(username=moment.username))})
+        return render(request, 'moments/moment.html', {"moment": moment, "user": (User.objects.get(username=current_username))})
     else:
         return redirect(views.home)

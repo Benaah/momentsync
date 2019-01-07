@@ -43,7 +43,7 @@ def registration(request):
             instance = User.objects.create(username=username,email=email,first_name=nameArgs[0], last_name=" ".join(nameArgs[1:]))
             Profile.objects.create(user=instance, googleID=userid)
 
-            Moment.objects.create(momentID=username, name=instance.first_name+"'s Moments", imgIDs=[], username=username)
+            Moment.objects.create(momentID=username, name=instance.first_name+"'s Moments", imgIDs=[], owner_username=username, allowed_usernames=[username])
 
             request.session['username'] = username
             request.session['logged_in'] = "true"
