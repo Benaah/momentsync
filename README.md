@@ -18,7 +18,8 @@ Moment Sync is an instant media syncing and sharing service that aims to simplif
 ![enter image description here](https://markyhzhang.com/static/img/momentsync/camera.png)
 
 ### Real-time Image Upload/Delete
-![video](https://markyhzhang.com/static/img/momentsync/video.gif)
+[![Poppy Video Demonstration](https://img.youtube.com/vi/jdESAO8IoD0/0.jpg)](https://www.youtube.com/embed/jdESAO8IoD0)
+
 
 ## Technical Design
 ![Design flow](https://raw.githubusercontent.com/MarkYHZhang/markyhzhang.github.io/master/static/img/MomentSync.png)
