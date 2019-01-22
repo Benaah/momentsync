@@ -1,7 +1,24 @@
 # MomentSync
-Moment Sync is an instant media syncing and sharing service that aims to simplify and speed up the process of syncing media between your devices or your friends
 
-**Descriptions/demo coming soon!!!**
+## Introduction
+Moment Sync is an instant media syncing and sharing service that aims to simplify and speed up the process of syncing media between your devices or your friends. It has a permission system that makes full use of "channels". It enables both private and public sharing of images/videos instantly (no refresh needed!) between all authorized channel members (which could be your phone, laptop, or your friend's device that has a browser on it).
+
+## Screen shots
+### Login screen
+![login](https://markyhzhang.com/static/img/momentsync/login.png)
+
+### Desktop View
+![desktop](https://markyhzhang.com/static/img/momentsync/desktop.png)
+
+### Phone View
+
+![phone](https://markyhzhang.com/static/img/momentsync/phone.jpg)
+
+### Camera View (with me in it)
+![enter image description here](https://markyhzhang.com/static/img/momentsync/camera.png)
+
+### Real-time Image Upload/Delete
+![video](https://markyhzhang.com/static/img/momentsync/video.gif)
 
 ## Technical Design
 ![Design flow](https://raw.githubusercontent.com/MarkYHZhang/markyhzhang.github.io/master/static/img/MomentSync.png)
