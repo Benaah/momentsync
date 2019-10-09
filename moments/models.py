@@ -26,8 +26,6 @@ class Moment(models.Model):
     def __str__(self):
         return self.momentID
 
-    # def modelMethodExample(self):
-    #     return "this is a cool test"
 
 
 class Profile(models.Model):

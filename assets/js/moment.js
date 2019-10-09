@@ -61,7 +61,6 @@ function resizeListener() {
                 }
             })
         }
-        // <input id="imgupload" type="file" name="image" accept="image/*" capture="environment">
     } else {
         removeElement("imgupload");
     }
@@ -79,7 +78,6 @@ function isMobile() {
 
 //video BEGIN
 
-// var video;
 var videowidth, videoheight, video;
 var canvas = document.createElement('canvas');
 var context = canvas.getContext('2d');
@@ -114,14 +112,12 @@ function startCamera() {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia(mediaConfig).then(function (stream) {
                 videoStream = stream;
-                //video.src = window.URL.createObjectURL(stream);
 
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
 
                 video.srcObject = stream;
                 cameraInit();
-                // video.play();
             });
         }
 
@@ -133,7 +129,6 @@ function startCamera() {
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
                 cameraInit();
-                // video.play();
             }, errBack);
         } else if (navigator.webkitGetUserMedia) { // WebKit-prefixed
             navigator.webkitGetUserMedia(mediaConfig, function (stream) {
@@ -142,7 +137,6 @@ function startCamera() {
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
                 cameraInit();
-                // video.play();
             }, errBack);
         } else if (navigator.mozGetUserMedia) { // Mozilla-prefixed
             navigator.mozGetUserMedia(mediaConfig, function (stream) {
@@ -151,7 +145,6 @@ function startCamera() {
                 videowidth = stream.getVideoTracks()[0].getSettings().width;
                 videoheight = stream.getVideoTracks()[0].getSettings().height;
                 cameraInit();
-                // video.play();
             }, errBack);
         }
     }
@@ -269,7 +262,7 @@ $(function () {
 
     $(".shutter-button").click(function () {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        var image = canvas.toDataURL("image/jpeg");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+        var image = canvas.toDataURL("image/jpeg");  // to prevent DOM 18 exception.
         createTempLoadingImage();
         uploadBlobByStream(dataURLtoFile(image));
     })
@@ -295,7 +288,6 @@ let MD5 = new Hashes.MD5;
 
 function getBlobService() {
     blobUri = 'https://' + 'cdn.momentsync.net';
-    // blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=sco&sp=wac&se=2020-01-05T23:54:38Z&st=2019-01-05T15:54:38Z&spr=https,http&sig=g4yUqdENm2Ki1Y41yb0elw8%2BNPPvxVmYYcVCOaQg3rI%3D');
     blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=sco&sp=rwac&se=2020-01-07T06:48:44Z&st=2019-01-06T22:48:44Z&spr=https&sig=zluU%2BtdRABNIjD585oP6tV%2BtJ8xrs1VDDrJTsd9aIAA%3D');
     return blobService;
 }
@@ -308,10 +300,6 @@ function uploadBlobByStream(image) {
     if (!blobService)
         return;
 
-    // var btn = document.getElementById('upload-button');
-    // btn.disabled = false;
-    // btn.innerHTML = 'Uploading';
-    //
     // // Make a smaller block size when uploading small blobs
     var blockSize = file.size > 1024 * 1024 * 32 ? 1024 * 1024 * 4 : 1024 * 512;
     var options = {
@@ -325,20 +313,16 @@ function uploadBlobByStream(image) {
 
     hashedName = MD5.hex(name);
 
-    // var speedSummary = blobService.createBlockBlobFromBrowserFile("momentsync", hashedName, file, options, function (error, result, response) {
     var speedSummary = blobService.createBlockBlobFromBrowserFile("images", hashedName, file, options, function (error, result, response) {
         if (error) {
             alert('Upload failed');
             console.log(error);
         } else {
-            // setTimeout(function() { // Prevent alert from stopping UI progress update
             let response = {
                 "type": "add_moment",
                 "value": hashedName,
             };
             socket.send(JSON.stringify(response));
-
-            // }, 1000);
         }
     });
 }
@@ -348,8 +332,6 @@ let loc = window.location;
 if (loc.protocol === "https:") {
     wsStart = 'wss://';
 }
-
-//let is scoped for the closes enclosing block, var is for the nearest function block
 
 let endpoint = wsStart + loc.host + loc.pathname;
 let socket = new ReconnectingWebSocket(endpoint);
@@ -394,9 +376,7 @@ socket.onmessage = function (e) {
 
     } else if (json.type === "delete_moment") {
         removeElement(json.value);
-        // momentContainer.remove(document.getElementById())
     }
-    // console.log(e.data.text);
 };
 
 function removeElement(elementId) {
