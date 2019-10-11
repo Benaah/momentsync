@@ -5,11 +5,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect
 from momentsync import views
 
+from ratelimit.decorators import ratelimit
+
 from .models import Moment
 from django.contrib.auth.models import User
 
 
-@csrf_exempt
+@ratelimit(key='ip', rate='1/s')
 def moment(request, momentID):
     if request.POST.get("logout") == "true":
         request.session['logged_in'] = "false"

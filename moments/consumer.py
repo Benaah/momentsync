@@ -3,7 +3,6 @@ import json
 from channels.consumer import AsyncConsumer
 from channels.db import database_sync_to_async
 from .models import Moment
-# import hashlib
 
 
 class ImageUpdateConsumer(AsyncConsumer):
@@ -28,8 +27,6 @@ class ImageUpdateConsumer(AsyncConsumer):
             momentID = self.scope['url_route']['kwargs']['momentID']
             imageid = data['value']
             await self.add_moment_to_database(momentID, imageid)
-            # image_id_args=str(data['value']).split(".")
-            # hashed_image_id = hashlib.md5(image_id_args[0].encode()).hexdigest() + "." +image_id_args[1]
             await self.channel_layer.group_send(
                 momentID,
                 {
@@ -77,9 +74,6 @@ class ImageUpdateConsumer(AsyncConsumer):
             momentID,
             self.channel_name
         )
-
-    # Note when calling the below two methods, make sure to add
-    # the prefix "await" to comply with async
 
     @database_sync_to_async
     def add_moment_to_database(self, momentid, imageid):
