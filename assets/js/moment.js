@@ -288,7 +288,7 @@ let MD5 = new Hashes.MD5;
 
 function getBlobService() {
     blobUri = 'https://' + 'cdn.momentsync.net';
-    blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2018-03-28&ss=b&srt=sco&sp=rwac&se=2020-01-07T06:48:44Z&st=2019-01-06T22:48:44Z&spr=https&sig=zluU%2BtdRABNIjD585oP6tV%2BtJ8xrs1VDDrJTsd9aIAA%3D');
+    blobService = AzureStorage.Blob.createBlobServiceWithSas(blobUri, '?sv=2019-02-02&ss=bfqt&srt=sco&sp=rwdlacup&se=2200-01-09T01:53:55Z&st=2020-01-08T17:53:55Z&spr=https&sig=rYdzw2iK%2FW7OfR%2FnsBi0YyEkWTqcVAPtqSt8Cuzei3Q%3D');
     return blobService;
 }
 
