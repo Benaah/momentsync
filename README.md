@@ -8,17 +8,17 @@ Moment Sync is an instant media syncing and sharing service that aims to simplif
 
 ## Screen shots
 ### Login screen
-![login](https://markyhzhang.com/static/img/momentsync/login.png)
+![login](https://markzhang.io/static/img/momentsync/login.png)
 
 ### Desktop View
-![desktop](https://markyhzhang.com/static/img/momentsync/desktop.png)
+![desktop](https://markzhang.io/static/img/momentsync/desktop.png)
 
 ### Phone View
 
-![phone](https://markyhzhang.com/static/img/momentsync/phone.jpg)
+![phone](https://markzhang.io/static/img/momentsync/phone.jpg)
 
 ### Camera View (with me in it)
-![enter image description here](https://markyhzhang.com/static/img/momentsync/camera.png)
+![enter image description here](https://markzhang.io/static/img/momentsync/camera.png)
 
 ### Video DEMO: Real-time Image Upload/Delete
 [![Poppy Video Demonstration](https://img.youtube.com/vi/jdESAO8IoD0/0.jpg)](https://www.youtube.com/embed/jdESAO8IoD0)
