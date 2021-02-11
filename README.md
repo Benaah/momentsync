@@ -1,5 +1,4 @@
-# MomentSync
-
+# Visit: [MomentSync.net](https://momentsync.net)
 ## Introduction
 Moment Sync is an instant media syncing and sharing service that aims to simplify and speed up the process of syncing media between your devices or your friends. It has a permission system that makes full use of "channels". It enables both private and public sharing of images/videos instantly (no refresh needed!) between all authorized channel members (which could be your phone, laptop, or your friend's device that has a browser on it).
 
