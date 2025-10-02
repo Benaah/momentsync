@@ -1,10 +1,6 @@
-from django.urls import path
-from django.conf.urls import url
-
-from .import views
-
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.urls import path, re_path
+from . import views
 
 urlpatterns = [
-    url(r'^(?P<momentID>[\w-]+)/$', views.moment),
+    re_path(r'^(?P<momentID>[\w-]+)/$', views.moment, name='moment'),
 ]

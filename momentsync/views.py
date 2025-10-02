@@ -11,7 +11,10 @@ from moments.models import InviteCode
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
-from ratelimit.decorators import ratelimit
+from django_ratelimit.decorators import ratelimit
+
+def home(request):
+    return render(request, "home.html")
 
 def about(request):
     return render(request, "about.html")

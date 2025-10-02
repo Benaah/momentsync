@@ -1,5 +1,5 @@
 {% extends 'base_template.html' %}
-{% load static from staticfiles %}
+{% load static %}
 
 {% block externalJS %}
     <meta name="google-signin-scope" content="profile email">
@@ -13,14 +13,37 @@
 {% block content %}
 <div class="card">
   <div class="container">
-
-      <h3 id="main-title"><i>Moment Sync</i></h3>
-      <p>Sync Your Moments</p>
-      <p><b>Fast, Secure, & Simple</b></p>
-      <div class="g-signin2" data-onsuccess="onSignIn" style=""></div>
-      <br>
-      <p style="font-size: 10px">Made by Mark Zhang</p>
-{#      <a href="#" id="signout" onclick="signOut();">Sign out</a>#}
+      <div class="hero-section">
+          <h1 id="main-title">Moment Sync</h1>
+          <p class="subtitle">Sync Your Moments</p>
+          <p class="tagline">Fast, Secure, & Simple</p>
+          
+          <div class="google-signin-container">
+              <div class="g-signin2" data-onsuccess="onSignIn"></div>
+          </div>
+          
+          <div class="features-grid">
+              <div class="feature-card fade-in">
+                  <span class="feature-icon">🚀</span>
+                  <h3 class="feature-title">Lightning Fast</h3>
+                  <p class="feature-description">Upload and sync your moments instantly with our optimized infrastructure.</p>
+              </div>
+              <div class="feature-card fade-in">
+                  <span class="feature-icon">🔒</span>
+                  <h3 class="feature-title">Secure & Private</h3>
+                  <p class="feature-description">Your memories are protected with end-to-end encryption and privacy controls.</p>
+              </div>
+              <div class="feature-card fade-in">
+                  <span class="feature-icon">📱</span>
+                  <h3 class="feature-title">Cross-Platform</h3>
+                  <p class="feature-description">Access your moments from any device, anywhere, anytime.</p>
+              </div>
+          </div>
+      </div>
+      
+      <div class="footer">
+          <p class="footer-text">Made by Mark Zhang</p>
+      </div>
   </div>
 </div>
 {% endblock %}

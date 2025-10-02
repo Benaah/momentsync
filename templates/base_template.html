@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-{% load static from staticfiles %}
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Moment Sync</title>
     <link href="{% static 'css/normalize.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/skeleton.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/base.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/home.css' %}" rel="stylesheet" type="text/css">
     {% block externalCSS %}{% endblock %}
-    <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block externalJS %}{% endblock %}
