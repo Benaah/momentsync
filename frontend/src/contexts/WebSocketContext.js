@@ -226,7 +226,6 @@ export const WebSocketProvider = ({ children }) => {
     </WebSocketContext.Provider>
   );
 };
-
 export const useWebSocket = () => {
   const context = useContext(WebSocketContext);
   if (!context) {
@@ -234,3 +233,4 @@ export const useWebSocket = () => {
   }
   return context;
 };
+

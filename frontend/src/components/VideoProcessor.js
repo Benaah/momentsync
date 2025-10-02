@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, Square, Download, Settings, RotateCcw } from 'lucide-react';
+import { Play, Pause, Square, Download, Settings, RotateCcw, X } from 'lucide-react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useWebSocket } from '../contexts/WebSocketContext';
+import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
-const VideoProcessor = ({ file, onProcessed, onError }) => {
+const VideoProcessor = ({ file, onProcessed, onError, isOpen = false, onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [processingStep, setProcessingStep] = useState('');
@@ -44,60 +46,55 @@ const VideoProcessor = ({ file, onProcessed, onError }) => {
     setProcessedFiles({});
 
     try {
-      // Step 1: Upload original file
-      setProcessingStep('Uploading original file...');
+      // Step 1: Upload original file to backend for processing
+      setProcessingStep('Uploading video for processing...');
       setProgress(10);
 
       const formData = new FormData();
-      formData.append('media', file);
+      formData.append('file', file);
       formData.append('settings', JSON.stringify(settings));
 
-      const response = await fetch('/api/media/upload/', {
-        method: 'POST',
-        body: formData,
+      const response = await authAPI.post('/media/upload/', formData, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
-      }
-
-      const result = await response.json();
       setProgress(30);
+      setProcessingStep('Processing video with FFmpeg...');
 
-      // Step 2: Generate thumbnails
-      if (settings.generateThumbnails) {
-        setProcessingStep('Generating thumbnails...');
-        setProgress(50);
-        
-        // Simulate thumbnail generation
-        await generateThumbnails();
-        setProgress(70);
-      }
+      // Step 2: Process video with backend FFmpeg service
+      const processResponse = await authAPI.post('/media/process/', {
+        file_id: response.data.id,
+        operations: [
+          'compress',
+          'generate_thumbnails',
+          ...(settings.generateGif ? ['generate_gif'] : []),
+          ...(settings.extractAudio ? ['extract_audio'] : [])
+        ],
+        quality: settings.quality,
+        format: settings.format,
+        compression_level: settings.compressionLevel
+      });
 
-      // Step 3: Generate compressed versions
-      setProcessingStep('Generating compressed versions...');
+      setProgress(60);
+      setProcessingStep('Generating thumbnails...');
+
+      // Step 3: Generate thumbnails
+      const thumbnailsResponse = await authAPI.post(`/media/${response.data.id}/generate_thumbnails/`);
+      
       setProgress(80);
+      setProcessingStep('Finalizing...');
 
-      // Simulate compression
-      await generateCompressedVersions();
-      setProgress(90);
+      // Step 4: Get processed files
+      const processedResponse = await authAPI.get(`/media/${response.data.id}/processed_files/`);
 
-      // Step 4: Generate GIF preview
-      if (settings.generateGif) {
-        setProcessingStep('Generating GIF preview...');
-        await generateGifPreview();
-      }
-
+      setProcessedFiles(processedResponse.data);
       setProgress(100);
       setProcessingStep('Processing complete!');
-      
-      // Notify parent component
-      onProcessed?.(processedFiles);
-      
-      toast.success('Video processing completed!');
+
+      toast.success('Video processed successfully!');
+      onProcessed?.(processedResponse.data);
 
     } catch (error) {
       console.error('Video processing error:', error);
@@ -217,16 +214,39 @@ const VideoProcessor = ({ file, onProcessed, onError }) => {
     setProcessedFiles({});
   };
 
-  if (!file) {
-    return (
-      <div className="flex items-center justify-center h-64 border-2 border-dashed border-muted-foreground/25 rounded-lg">
-        <p className="text-muted-foreground">No video file selected</p>
-      </div>
-    );
+  if (!isOpen || !file) {
+    return null;
   }
 
   return (
-    <div className="space-y-4">
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b">
+            <h2 className="text-xl font-semibold text-gray-900">Video Processor</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
       {/* Video Preview */}
       <div className="relative bg-black rounded-lg overflow-hidden">
         <video
@@ -483,7 +503,10 @@ const VideoProcessor = ({ file, onProcessed, onError }) => {
 
       {/* Hidden canvas for processing */}
       <canvas ref={canvasRef} className="hidden" />
-    </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

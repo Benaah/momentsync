@@ -63,10 +63,13 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (credentials) => api.post('/auth/login/', credentials),
   register: (userData) => api.post('/auth/register/', userData),
+  googleAuth: (token) => api.post('/auth/google/', { token }),
   logout: () => api.post('/auth/logout/'),
   getProfile: () => api.get('/users/me/'),
   updateProfile: (userData) => api.patch('/users/me/', userData),
   refreshToken: (refresh) => api.post('/auth/refresh/', { refresh }),
+  changePassword: (passwordData) => api.post('/auth/change-password/', passwordData),
+  deleteAccount: () => api.delete('/users/delete-account/'),
 };
 
 // Moment API
@@ -114,6 +117,82 @@ export const userAPI = {
   searchUsers: (query) => api.get('/users/search/', { params: { q: query } }),
   getUser: (userId) => api.get(`/users/${userId}/`),
   updateUser: (userId, userData) => api.patch(`/users/${userId}/`, userData),
+  getSettings: () => api.get('/users/settings/'),
+  updateSettings: (settings) => api.patch('/users/settings/', settings),
+};
+
+// Analytics API
+export const analyticsAPI = {
+  getDashboard: () => api.get('/analytics/dashboard/'),
+  getPerformance: () => api.get('/analytics/performance/'),
+  getUserAnalytics: () => api.get('/analytics/user_analytics/'),
+  exportData: (format) => api.post('/analytics/export/', { format }),
+};
+
+// Security API
+export const securityAPI = {
+  checkRateLimit: (action) => api.post('/security/check_rate_limit/', { action }),
+  validateFile: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/security/validate_file/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  moderateText: (text) => api.post('/security/moderate_text/', { text }),
+};
+
+// Mobile API
+export const mobileAPI = {
+  cameraCapture: (imageData) => api.post('/mobile/camera_capture/', { image_data: imageData }),
+  enableOffline: (momentIds) => api.post('/mobile/enable_offline/', { moment_ids: momentIds }),
+  syncOffline: (data) => api.post('/mobile/sync_offline/', data),
+  registerFCM: (token) => api.post('/mobile/register_fcm/', { token }),
+  getCameraConfig: () => api.get('/mobile/camera_config/'),
+};
+
+// AI API
+export const aiAPI = {
+  analyzeImage: (imageData) => {
+    const formData = new FormData();
+    formData.append('image', imageData);
+    return api.post('/ai/analyze_image/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  smartCompress: (imageData, options = {}) => {
+    const formData = new FormData();
+    formData.append('image', imageData);
+    Object.keys(options).forEach(key => {
+      formData.append(key, options[key]);
+    });
+    return api.post('/ai/smart_compress/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  generateTags: (imageData) => {
+    const formData = new FormData();
+    formData.append('image', imageData);
+    return api.post('/ai/generate_tags/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+};
+
+// Storage API
+export const storageAPI = {
+  uploadMedia: (file, options = {}) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    Object.keys(options).forEach(key => {
+      formData.append(key, options[key]);
+    });
+    return api.post('/storage/upload_media/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  getMediaInfo: (fileId) => api.get('/storage/media_info/', { params: { file_id: fileId } }),
+  optimizeStorage: () => api.post('/storage/optimize_storage/'),
 };
 
 // WebSocket API
@@ -140,6 +219,35 @@ export const handleApiError = (error) => {
     // Something else happened
     return { message: error.message || 'An unexpected error occurred', status: 0 };
   }
+};
+
+// Comprehensive API service with all endpoints
+export const apiService = {
+  // Authentication
+  auth: authAPI,
+  
+  // Core functionality
+  moments: momentAPI,
+  media: mediaAPI,
+  users: userAPI,
+  
+  // Advanced features
+  analytics: analyticsAPI,
+  security: securityAPI,
+  mobile: mobileAPI,
+  ai: aiAPI,
+  storage: storageAPI,
+  websocket: websocketAPI,
+  
+  // Utility functions
+  handleError: handleApiError,
+  
+  // Direct API access
+  get: (url, config) => api.get(url, config),
+  post: (url, data, config) => api.post(url, data, config),
+  put: (url, data, config) => api.put(url, data, config),
+  patch: (url, data, config) => api.patch(url, data, config),
+  delete: (url, config) => api.delete(url, config),
 };
 
 export default api;

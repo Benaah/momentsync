@@ -46,123 +46,91 @@ const authReducer = (state, action) => {
   }
 };
 
-const initialState = {
-  isAuthenticated: false,
-  user: null,
-  token: localStorage.getItem('token'),
-  loading: true,
-  error: null,
-};
-
-export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
-
-  useEffect(() => {
-    const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await authAPI.getProfile();
-          dispatch({
-            type: 'LOGIN_SUCCESS',
-            payload: { user: response.data, token },
-          });
-        } catch (error) {
-          localStorage.removeItem('token');
-          dispatch({ type: 'LOGOUT' });
-        }
-      }
-      dispatch({ type: 'CLEAR_ERROR' });
-    };
-
-    initAuth();
-  }, []);
-
-  const login = async (credentials) => {
-    dispatch({ type: 'LOGIN_START' });
-    try {
-      const response = await authAPI.login(credentials);
-      const { user, access, refresh } = response.data;
-      
-      localStorage.setItem('token', access);
-      localStorage.setItem('refreshToken', refresh);
-      
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: { user, token: access },
-      });
-      
-      toast.success('Welcome back!');
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.detail || 'Login failed';
-      dispatch({
-        type: 'LOGIN_FAILURE',
-        payload: errorMessage,
-      });
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  const register = async (userData) => {
-    dispatch({ type: 'LOGIN_START' });
-    try {
-      const response = await authAPI.register(userData);
-      const { user, access, refresh } = response.data;
-      
-      localStorage.setItem('token', access);
-      localStorage.setItem('refreshToken', refresh);
-      
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: { user, token: access },
-      });
-      
-      toast.success('Account created successfully!');
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.detail || 'Registration failed';
-      dispatch({
-        type: 'LOGIN_FAILURE',
-        payload: errorMessage,
-      });
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    dispatch({ type: 'LOGOUT' });
-    toast.success('Logged out successfully');
-  };
-
-  const updateUser = (userData) => {
-    dispatch({ type: 'UPDATE_USER', payload: userData });
-  };
-
-  const clearError = () => {
-    dispatch({ type: 'CLEAR_ERROR' });
-  };
-
-  const value = {
-    ...state,
-    login,
-    register,
-    logout,
-    updateUser,
-    clearError,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+
+  useEffect(() => {
+    if (token) {
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, [token]);
+
+  const fetchUser = async () => {
+    try {
+      const response = await api.get('/users/me/');
+      setUser(response.data);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (accessToken, refreshToken) => {
+    localStorage.setItem('token', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    setToken(accessToken);
+    await fetchUser();
+  };
+
+  const register = async (accessToken, refreshToken) => {
+    localStorage.setItem('token', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    setToken(accessToken);
+    await fetchUser();
+  };
+
+  const googleLogin = async (googleToken) => {
+    try {
+      const response = await api.post('/auth/google/', {
+        token: googleToken
+      });
+      
+      if (response.data.access) {
+        await login(response.data.access, response.data.refresh);
+        return { success: true };
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.detail || 'Google login failed' 
+      };
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    setToken(null);
+    setUser(null);
+  };
+
+  const value = {
+    user,
+    loading,
+    login,
+    register,
+    googleLogin,
+    logout,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

@@ -1,13 +1,16 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 from asgiref.sync import sync_to_async
 import asyncio
 import json
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from moments.models import Moment, Profile
 from .serializers import MomentSerializer, UserSerializer, MediaSerializer
@@ -491,3 +494,241 @@ class StorageViewSet(viewsets.ViewSet):
         storage_service = CloudStorageService()
         result = asyncio.run(storage_service.optimize_storage())
         return Response(result)
+
+
+# Authentication Views
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def google_auth(request):
+    """
+    Authenticate user with Google ID token
+    """
+    try:
+        token = request.data.get('token')
+        if not token:
+            return Response(
+                {'error': 'Google token is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Verify the Google ID token
+        idinfo = id_token.verify_oauth2_token(
+            token, 
+            requests.Request(), 
+            "133754882345-b044u4p8radcpasmq9s38sc3k0hiktsb.apps.googleusercontent.com"
+        )
+        
+        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+            return Response(
+                {'error': 'Invalid token issuer'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        google_id = idinfo['sub']
+        email = idinfo['email']
+        name = idinfo.get('name', '')
+        first_name = idinfo.get('given_name', '')
+        last_name = idinfo.get('family_name', '')
+        
+        # Check if user exists by Google ID
+        try:
+            profile = Profile.objects.get(googleID=google_id)
+            user = profile.user
+        except Profile.DoesNotExist:
+            # Check if user exists by email
+            try:
+                user = User.objects.get(email=email)
+                # Create profile if it doesn't exist
+                profile, created = Profile.objects.get_or_create(
+                    user=user,
+                    defaults={'googleID': google_id}
+                )
+                if created:
+                    profile.googleID = google_id
+                    profile.save()
+            except User.DoesNotExist:
+                # Create new user
+                username = email.split('@')[0]  # Use email prefix as username
+                # Ensure username is unique
+                counter = 1
+                original_username = username
+                while User.objects.filter(username=username).exists():
+                    username = f"{original_username}{counter}"
+                    counter += 1
+                
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                profile = Profile.objects.create(
+                    user=user,
+                    googleID=google_id
+                )
+                
+                # Create default moment for new user
+                Moment.objects.create(
+                    momentID=username,
+                    name=f"{first_name}'s Moments",
+                    imgIDs=[],
+                    owner_username=username,
+                    allowed_usernames=[username]
+                )
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        
+        return Response({
+            'access': access_token,
+            'refresh': refresh_token,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }
+        })
+        
+    except ValueError as e:
+        return Response(
+            {'error': f'Invalid token: {str(e)}'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        return Response(
+            {'error': f'Authentication failed: {str(e)}'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request):
+    """
+    Register a new user
+    """
+    try:
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        
+        if not all([username, email, password]):
+            return Response(
+                {'error': 'Username, email, and password are required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if User.objects.filter(username=username).exists():
+            return Response(
+                {'error': 'Username already exists'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {'error': 'Email already exists'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+        
+        # Create profile
+        Profile.objects.create(user=user)
+        
+        # Create default moment
+        Moment.objects.create(
+            momentID=username,
+            name=f"{user.first_name or username}'s Moments",
+            imgIDs=[],
+            owner_username=username,
+            allowed_usernames=[username]
+        )
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        
+        return Response({
+            'access': access_token,
+            'refresh': refresh_token,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }
+        })
+        
+    except Exception as e:
+        return Response(
+            {'error': f'Registration failed: {str(e)}'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    """
+    Login user with username/email and password
+    """
+    try:
+        username_or_email = request.data.get('username')
+        password = request.data.get('password')
+        
+        if not all([username_or_email, password]):
+            return Response(
+                {'error': 'Username/email and password are required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Try to find user by username or email
+        try:
+            if '@' in username_or_email:
+                user = User.objects.get(email=username_or_email)
+            else:
+                user = User.objects.get(username=username_or_email)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Invalid credentials'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        if not user.check_password(password):
+            return Response(
+                {'error': 'Invalid credentials'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        
+        return Response({
+            'access': access_token,
+            'refresh': refresh_token,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }
+        })
+        
+    except Exception as e:
+        return Response(
+            {'error': f'Login failed: {str(e)}'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

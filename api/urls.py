@@ -14,4 +14,8 @@ router.register(r'storage', views.StorageViewSet, basename='storage')
 
 urlpatterns = [
     path('', include(router.urls)),
+    # Authentication endpoints
+    path('auth/google/', views.google_auth, name='google_auth'),
+    path('auth/register/', views.register, name='register'),
+    path('auth/login/', views.login, name='login'),
 ]

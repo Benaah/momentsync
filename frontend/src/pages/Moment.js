@@ -2,14 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Upload, Users, Settings, Share2, Video, Phone, Mic, MicOff } from 'lucide-react';
+import { Camera, Upload, Users, Video } from 'lucide-react';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { useAuth } from '../contexts/AuthContext';
-import { momentAPI, mediaAPI } from '../services/api';
+import { authAPI } from '../services/api';
 import MediaGrid from '../components/MediaGrid';
 import CameraModal from '../components/CameraModal';
 import WebRTCVideo from '../components/WebRTCVideo';
 import InviteModal from '../components/InviteModal';
+import VideoProcessor from '../components/VideoProcessor';
 import toast from 'react-hot-toast';
 
 const Moment = () => {
@@ -25,6 +26,8 @@ const Moment = () => {
   const [webrtcConnections, setWebrtcConnections] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsers, setTypingUsers] = useState([]);
+  const [showVideoProcessor, setShowVideoProcessor] = useState(false);
+  const [selectedVideoFile, setSelectedVideoFile] = useState(null);
   
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -32,7 +35,7 @@ const Moment = () => {
   // Fetch moment data
   const { data: moment, isLoading, error } = useQuery(
     ['moment', momentId],
-    () => momentAPI.getMoment(momentId),
+    () => authAPI.get(`/moments/${momentId}/`),
     {
       enabled: !!momentId,
       onError: (error) => {
@@ -46,7 +49,15 @@ const Moment = () => {
 
   // Upload media mutation
   const uploadMediaMutation = useMutation(
-    (file) => mediaAPI.uploadMedia(file, momentId),
+    (file) => {
+      const formData = new FormData();
+      formData.append('media', file);
+      return authAPI.post(`/moments/${momentId}/add_media/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
     {
       onSuccess: (data) => {
         queryClient.invalidateQueries(['moment', momentId]);
@@ -136,10 +147,32 @@ const Moment = () => {
   }, [momentId, user.username, queryClient]);
 
   const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      uploadMediaMutation.mutate(file);
-    }
+    const files = Array.from(event.target.files);
+    files.forEach(file => {
+      // Check if it's a video file
+      if (file.type.startsWith('video/')) {
+        setSelectedVideoFile(file);
+        setShowVideoProcessor(true);
+      } else {
+        uploadMediaMutation.mutate(file);
+      }
+    });
+  };
+
+  const handleVideoProcessed = (processedData) => {
+    // Handle processed video data
+    console.log('Video processed:', processedData);
+    setShowVideoProcessor(false);
+    setSelectedVideoFile(null);
+    queryClient.invalidateQueries(['moment', momentId]);
+    toast.success('Video processed and uploaded successfully!');
+  };
+
+  const handleVideoProcessingError = (error) => {
+    console.error('Video processing error:', error);
+    setShowVideoProcessor(false);
+    setSelectedVideoFile(null);
+    toast.error('Video processing failed');
   };
 
   const handleCameraCapture = (imageBlob) => {
@@ -335,6 +368,17 @@ const Moment = () => {
         isOpen={showInvite}
         onClose={() => setShowInvite(false)}
         momentId={momentId}
+      />
+
+      <VideoProcessor
+        file={selectedVideoFile}
+        onProcessed={handleVideoProcessed}
+        onError={handleVideoProcessingError}
+        isOpen={showVideoProcessor}
+        onClose={() => {
+          setShowVideoProcessor(false);
+          setSelectedVideoFile(null);
+        }}
       />
     </div>
   );
