@@ -1,9 +1,9 @@
 from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.security.websocket import AllowedHostsOriginValidator, OriginValidator
+from channels.security.websocket import AllowedHostsOriginValidator
 from channels.auth import AuthMiddlewareStack
-from django.conf.urls import url
+from django.urls import re_path
 
-from moments.consumer import ImageUpdateConsumer
+from websocket.consumers import MomentConsumer
 
 
 application = ProtocolTypeRouter({
@@ -12,8 +12,7 @@ application = ProtocolTypeRouter({
         AuthMiddlewareStack(
             URLRouter(
                 [
-                    url(r'^moments/(?P<momentID>[\w-]+)/$', ImageUpdateConsumer),
-
+                    re_path(r'^ws/moments/(?P<momentID>[\w-]+)/$', MomentConsumer),
                 ]
             )
         )
