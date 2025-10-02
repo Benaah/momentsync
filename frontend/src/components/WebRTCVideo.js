@@ -4,7 +4,7 @@ import {
   VideoCameraIcon, 
   PhoneIcon, 
   MicrophoneIcon, 
-  MicrophoneSlashIcon,
+  SpeakerXMarkIcon,
   VideoCameraSlashIcon,
   XMarkIcon,
   UserGroupIcon
@@ -296,7 +296,7 @@ const WebRTCVideo = ({
             {isAudioEnabled ? (
               <MicrophoneIcon className="h-5 w-5" />
             ) : (
-              <MicrophoneSlashIcon className="h-5 w-5" />
+              <SpeakerXMarkIcon className="h-5 w-5" />
             )}
           </button>
 

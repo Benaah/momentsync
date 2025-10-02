@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useWebSocket } from '../contexts/WebSocketContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { PlusIcon, ShareIcon, HeartIcon, ChatBubbleLeftIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ShareIcon, HeartIcon, ChatBubbleLeftIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const Home = () => {
   const { user } = useAuth();
-  const { socket } = useWebSocket();
   const navigate = useNavigate();
   const [moments, setMoments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +20,7 @@ const Home = () => {
 
   const fetchMoments = async () => {
     try {
-      const response = await authAPI.get('/moments/');
+      const response = await authAPI.getMoments();
       setMoments(response.data.results || response.data);
     } catch (error) {
       console.error('Error fetching moments:', error);
@@ -38,7 +36,7 @@ const Home = () => {
       const momentName = prompt('Enter moment name:');
       if (!momentName) return;
 
-      const response = await authAPI.post('/moments/', {
+      const response = await authAPI.createMoment({
         name: momentName,
         description: `A new moment created by ${user?.username}`,
       });
@@ -61,7 +59,7 @@ const Home = () => {
 
     setDeleting(momentId);
     try {
-      await authAPI.delete(`/moments/${momentId}/`);
+      await authAPI.deleteMoment(momentId);
       setMoments(moments.filter(moment => moment.momentID !== momentId));
       toast.success('Moment deleted successfully');
     } catch (error) {
@@ -74,7 +72,7 @@ const Home = () => {
 
   const shareMoment = async (momentId) => {
     try {
-      const shareUrl = `${window.location.origin}/moment/${momentId}`;
+      const shareUrl = `${window.location.origin}/moment/${momentId.momentID}`;
       await navigator.clipboard.writeText(shareUrl);
       toast.success('Share link copied to clipboard');
     } catch (error) {
@@ -177,26 +175,26 @@ const Home = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => shareMoment(moment.momentID || moment.id)}
+                        onClick={() => shareMoment(moment.momentID || moment.momentID)}
                         className="p-2 text-gray-400 hover:text-purple-600 transition-colors"
                         title="Share"
                       >
                         <ShareIcon className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => deleteMoment(moment.momentID || moment.id)}
+                        onClick={() => deleteMoment(moment.momentID || moment.momentID)}
                         disabled={deleting === (moment.momentID || moment.id)}
                         className="p-2 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
                         title="Delete"
                       >
-                        {deleting === (moment.momentID || moment.id) ? (
+                        {deleting === (moment.momentID || moment.momentID) ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
                         ) : (
                           <TrashIcon className="h-4 w-4" />
                         )}
                       </button>
                       <Link
-                        to={`/moment/${moment.momentID || moment.id}`}
+                        to={`/moment/${moment.momentID || moment.momentID}`}
                         className="text-purple-600 hover:text-purple-700 font-medium"
                       >
                         View →

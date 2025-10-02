@@ -1,50 +1,7 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { authAPI } from '../services/api';
-import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
-
-const authReducer = (state, action) => {
-  switch (action.type) {
-    case 'LOGIN_START':
-      return { ...state, loading: true, error: null };
-    case 'LOGIN_SUCCESS':
-      return {
-        ...state,
-        loading: false,
-        isAuthenticated: true,
-        user: action.payload.user,
-        token: action.payload.token,
-        error: null,
-      };
-    case 'LOGIN_FAILURE':
-      return {
-        ...state,
-        loading: false,
-        isAuthenticated: false,
-        user: null,
-        token: null,
-        error: action.payload,
-      };
-    case 'LOGOUT':
-      return {
-        ...state,
-        isAuthenticated: false,
-        user: null,
-        token: null,
-        error: null,
-      };
-    case 'UPDATE_USER':
-      return {
-        ...state,
-        user: { ...state.user, ...action.payload },
-      };
-    case 'CLEAR_ERROR':
-      return { ...state, error: null };
-    default:
-      return state;
-  }
-};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -65,11 +22,12 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
+    // eslint-disable-next-line
   }, [token]);
 
   const fetchUser = async () => {
     try {
-      const response = await api.get('/users/me/');
+      const response = await authAPI.getProfile();
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -95,19 +53,20 @@ export const AuthProvider = ({ children }) => {
 
   const googleLogin = async (googleToken) => {
     try {
-      const response = await api.post('/auth/google/', {
+      const response = await authAPI.googleAuth({
         token: googleToken
       });
-      
+
       if (response.data.access) {
         await login(response.data.access, response.data.refresh);
         return { success: true };
       }
+      return { success: false, error: 'No access token received' };
     } catch (error) {
       console.error('Google login error:', error);
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Google login failed' 
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Google login failed'
       };
     }
   };

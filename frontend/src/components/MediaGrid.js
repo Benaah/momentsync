@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   EyeIcon, 
-  DownloadIcon, 
+  ArrowDownTrayIcon, 
   TrashIcon, 
   HeartIcon,
   ChatBubbleLeftIcon,
@@ -168,7 +168,7 @@ const MediaGrid = ({
                       className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200"
                       title="Download"
                     >
-                      <DownloadIcon className="h-5 w-5 text-gray-900" />
+                      <ArrowDownTrayIcon className="h-5 w-5 text-gray-900" />
                     </button>
                   )}
 

@@ -23,7 +23,7 @@ const Moment = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const [isWebRTCEnabled, setIsWebRTCEnabled] = useState(false);
-  const [webrtcConnections, setWebrtcConnections] = useState([]);
+  const [ setWebrtcConnections] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsers, setTypingUsers] = useState([]);
   const [showVideoProcessor, setShowVideoProcessor] = useState(false);
@@ -71,7 +71,7 @@ const Moment = () => {
 
   // Remove media mutation
   const removeMediaMutation = useMutation(
-    (mediaId) => momentAPI.removeMedia(momentId, mediaId),
+    (mediaId) => authAPI.delete(`/moments/${momentId}/remove_media/${mediaId}/`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['moment', momentId]);
@@ -99,7 +99,7 @@ const Moment = () => {
   // Handle WebSocket events
   useEffect(() => {
     const handleMediaAdded = (event) => {
-      const { media_id, uploader } = event.detail;
+      const { uploader } = event.detail;
       if (uploader !== user.username) {
         queryClient.invalidateQueries(['moment', momentId]);
         toast.success(`New media added by ${uploader}`);
@@ -107,7 +107,7 @@ const Moment = () => {
     };
 
     const handleMediaRemoved = (event) => {
-      const { media_id, remover } = event.detail;
+      const { remover } = event.detail;
       if (remover !== user.username) {
         queryClient.invalidateQueries(['moment', momentId]);
         toast.info(`Media removed by ${remover}`);

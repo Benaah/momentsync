@@ -8,7 +8,6 @@ import {
   ArrowPathIcon,
   CheckIcon
 } from '@heroicons/react/24/outline';
-import { VideoProcessor } from './VideoProcessor';
 import toast from 'react-hot-toast';
 
 const CameraModal = ({ isOpen, onClose, onCapture, onVideoRecord }) => {

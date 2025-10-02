@@ -76,7 +76,6 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const response = await authAPI.updateProfile(formData);
       setProfile({ ...profile, ...formData });
       setEditing(false);
       toast.success('Profile updated successfully');
